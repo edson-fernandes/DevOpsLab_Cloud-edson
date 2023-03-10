@@ -1,11 +1,14 @@
-import unittest
 from app import app
+import unittest
 
 class TestBugRoute(unittest.TestCase):
+    def setUp(self):
+        self.app = app.test_client()
+        self.result = self.app.get('/bug')
+
     def test_bug_route(self):
-        with app.test_client() as client:
-            response = client.get('/bug')
-            self.assertEqual(response.status_code, 500) # Um TypeError resulta em um erro interno do servidor (500)
-            # Garante que apenas um dos blocos except seja executado
-            self.assertIn(b"TypeError", response.data) # Espera-se que a mensagem de erro apareça na resposta
-            self.assertNotIn(b"Duplicado", response.data) # Garante que a mensagem de duplicidade não apareça na resposta
+        self.assertEqual(self.result.status_code, 500) # O TypeError resulta em um erro interno do servidor (500)
+
+    def test_error_message(self):
+        self.assertIn(b"TypeError", self.result.data) # Espera-se que a mensagem de erro apareça na resposta
+        self.assertNotIn(b"Duplicado", self.result.data) # Garante que a mensagem de duplicidade não apareça na resposta
